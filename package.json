@@ -8,7 +8,9 @@
   "dependencies": {
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
   },
   "engines": {
     "node": ">=18"
