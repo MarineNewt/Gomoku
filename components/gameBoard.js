@@ -7,6 +7,7 @@ export default function GameBoard() {
     const size = 15;
     const [board, setBoard] = useState(Array(size).fill(null).map(() => Array(size).fill(null)));
     const [turn, setTurn] = useState("black");
+    const [turnnum, incTurn] = useState(0);
     const [playerColor, setPlayerColor] = useState(null);
 
     useEffect(() => {
@@ -19,6 +20,13 @@ export default function GameBoard() {
             setPlayerColor("spectator");
         });
 
+        socket.on("reset", (message) => {
+          setBoard(Array(size).fill(null).map(() => Array(size).fill(null)));
+          setTurn("black");
+          incTurn(0);
+          console.log(message);
+      });
+
         socket.on("update", ({ row, col, player }) => {
             setBoard((prev) => {
                 const newBoard = prev.map(row => [...row]);
@@ -26,14 +34,14 @@ export default function GameBoard() {
                 return newBoard;
             });
             setTurn(player === "black" ? "white" : "black");
+            incTurn(turnnum + 1);
         });
 
         // Reconfirm player status after 3 seconds
         setTimeout(() => {
           if (playerColor == null) {
-            socket.emit("requestColor");
+            socket.emit("requestColor", { turnnum });
           }
-          //socket.emit("confirmTurn")
       }, 3000);
 
     }, []);
@@ -41,6 +49,7 @@ export default function GameBoard() {
     const handleMove = (row, col) => {
         if (board[row][col] !== null || playerColor !== turn) return;
         socket.emit("move", { row, col, player: playerColor });
+        incTurn(turnnum + 1);
     };
 
     return (
