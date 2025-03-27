@@ -9,7 +9,7 @@ export default function GameBoard() {
     const [turn, setTurn] = useState("black");
     const [turnnum, incTurn] = useState(0);
     const [playerColor, setPlayerColor] = useState(null);
-
+    
     useEffect(() => {
 
         socket.on("assignColor", (color) => {
@@ -30,9 +30,15 @@ export default function GameBoard() {
         socket.on("update", ({ row, col, player }) => {
             setBoard((prev) => {
                 const newBoard = prev.map(row => [...row]);
-                newBoard[row][col] = "placed"; // Hide color after placement
+                newBoard[row][col] = player; // Hide color after placement
                 return newBoard;
             });
+            console.log(`Board check: ${board[row][col]}`)
+            
+            //check win conditions
+            if (checkWin(row, col, player)) {
+              console.log(`${player} wins.`);
+            }
             setTurn(player === "black" ? "white" : "black");
             incTurn(turnnum + 1);
         });
@@ -46,10 +52,39 @@ export default function GameBoard() {
 
     }, []);
 
+        const countConsecutive = (row, col, rowDir, colDir, player) => {
+      let count = 0;
+      let r = row + rowDir;
+      let c = col + colDir;
+
+      if(rowDir == 0 && colDir == 1){
+        console.log("hit")
+        console.log(r >= 0)
+        console.log(r < size)
+        console.log(c >= 0)
+        console.log(c < size)
+        console.log(board)
+      }
+
+      while (r >= 0 && r < size && c >= 0 && c < size && board[r][c] === player) {
+          count++;
+          r += rowDir;
+          c += colDir;
+      }
+
+      return count;
+    };
+    const checkWin = (row, col, player) => {
+      return (
+          countConsecutive(row, col, 1, 0, player) + countConsecutive(row, col, -1, 0, player) >= 4 || // Horizontal
+          countConsecutive(row, col, 0, 1, player) + countConsecutive(row, col, 0, -1, player) >= 4 || // Vertical
+          countConsecutive(row, col, 1, 1, player) + countConsecutive(row, col, -1, -1, player) >= 4 || // Diagonal (\)
+          countConsecutive(row, col, 1, -1, player) + countConsecutive(row, col, -1, 1, player) >= 4    // Diagonal (/)
+      );
+    };
     const handleMove = (row, col) => {
         if (board[row][col] !== null || playerColor !== turn) return;
         socket.emit("move", { row, col, player: playerColor });
-        incTurn(turnnum + 1);
     };
 
     return (
