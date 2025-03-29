@@ -4,69 +4,68 @@ import io from "socket.io-client";
 const socket = io();
 
 export default function GameBoard() {
-    const size = 15;
-    const [board, setBoard] = useState(Array(size).fill(null).map(() => Array(size).fill(null)));
-    const [turn, setTurn] = useState("black");
-    const [turnnum, incTurn] = useState(0);
-    const [playerColor, setPlayerColor] = useState(null);
+    let size = 15;
+    let [board, setBoard] = useState(Array(size).fill(null).map(() => Array(size).fill(null)));
+    let [turn, setTurn] = useState("black");
+    let [turnnum, incTurn] = useState(0);
+    let [playerColor, setPlayerColor] = useState(null);
     
     useEffect(() => {
-
-        socket.on("assignColor", (color) => {
-            setPlayerColor(color);
-        });
-
-        socket.on("spectator", () => {
-            setPlayerColor("spectator");
-        });
-
-        socket.on("reset", (message) => {
-          setBoard(Array(size).fill(null).map(() => Array(size).fill(null)));
-          setTurn("black");
-          incTurn(0);
-          console.log(message);
+      socket.on("assignColor", (color) => {
+          setPlayerColor(color);
       });
 
-        socket.on("update", ({ row, col, player }) => {
-            setBoard((prev) => {
-                const newBoard = prev.map(row => [...row]);
-                newBoard[row][col] = player; // Hide color after placement
-                return newBoard;
-            });
-            console.log(`Board check: ${board[row][col]}`)
-            
-            //check win conditions
-            if (checkWin(row, col, player)) {
+      socket.on("spectator", () => {
+          setPlayerColor("spectator");
+      });
+
+      socket.on("reset", (message) => {
+        setBoard(Array(size).fill(null).map(() => Array(size).fill(null)));
+        setTurn("black");
+        incTurn(0);
+        console.log(message);
+      });
+
+      socket.on("update", ({ row, col, player }) => {
+        setBoard((prev) => {
+            let newBoard = prev.map(row => [...row]);
+            newBoard[row][col] = player;
+            if (checkWin(row, col, player, newBoard)) {
               console.log(`${player} wins.`);
             }
-            setTurn(player === "black" ? "white" : "black");
-            incTurn(turnnum + 1);
+            return newBoard;
         });
 
-        // Reconfirm player status after 3 seconds
-        setTimeout(() => {
-          if (playerColor == null) {
-            socket.emit("requestColor", { turnnum });
-          }
+        //check win conditions
+        setTurn(player === "black" ? "white" : "black");
+        incTurn(turnnum + 1);
+      });
+
+      // Reconfirm player status after 3 seconds
+      setTimeout(() => {
+        if (playerColor == null) {
+          socket.emit("requestColor", { turnnum });
+        }
       }, 3000);
 
     }, []);
 
-        const countConsecutive = (row, col, rowDir, colDir, player) => {
+    const countConsecutive = (row, col, rowDir, colDir, player, sboard) => {
       let count = 0;
       let r = row + rowDir;
       let c = col + colDir;
 
       if(rowDir == 0 && colDir == 1){
-        console.log("hit")
-        console.log(r >= 0)
-        console.log(r < size)
-        console.log(c >= 0)
-        console.log(c < size)
-        console.log(board)
+        console.log(sboard)
+        // console.log("hit")
+        // console.log(r >= 0)
+        // console.log(r < size)
+        // console.log(c >= 0)
+        // console.log(c < size)
+        // console.log(board)
       }
 
-      while (r >= 0 && r < size && c >= 0 && c < size && board[r][c] === player) {
+      while (r >= 0 && r < size && c >= 0 && c < size && sboard[r][c] === player) {
           count++;
           r += rowDir;
           c += colDir;
@@ -74,12 +73,12 @@ export default function GameBoard() {
 
       return count;
     };
-    const checkWin = (row, col, player) => {
+    const checkWin = (row, col, player, sboard) => {
       return (
-          countConsecutive(row, col, 1, 0, player) + countConsecutive(row, col, -1, 0, player) >= 4 || // Horizontal
-          countConsecutive(row, col, 0, 1, player) + countConsecutive(row, col, 0, -1, player) >= 4 || // Vertical
-          countConsecutive(row, col, 1, 1, player) + countConsecutive(row, col, -1, -1, player) >= 4 || // Diagonal (\)
-          countConsecutive(row, col, 1, -1, player) + countConsecutive(row, col, -1, 1, player) >= 4    // Diagonal (/)
+          countConsecutive(row, col, 1, 0, player, sboard) + countConsecutive(row, col, -1, 0, player, sboard) >= 4 || // Horizontal
+          countConsecutive(row, col, 0, 1, player, sboard) + countConsecutive(row, col, 0, -1, player, sboard) >= 4 || // Vertical
+          countConsecutive(row, col, 1, 1, player, sboard) + countConsecutive(row, col, -1, -1, player, sboard) >= 4 || // Diagonal (\)
+          countConsecutive(row, col, 1, -1, player, sboard) + countConsecutive(row, col, -1, 1, player, sboard) >= 4    // Diagonal (/)
       );
     };
     const handleMove = (row, col) => {
@@ -94,7 +93,7 @@ export default function GameBoard() {
                     row.map((cell, cIdx) => (
                         <div
                             key={`${rIdx}-${cIdx}`}
-                            onClick={() => handleMove(rIdx, cIdx)}
+                            onClick={() => {handleMove(rIdx, cIdx);}}
                             style={{ width: 30, height: 30, border: "1px solid black", backgroundColor: cell ? "gray" : "white" }}
                         />
                     ))
