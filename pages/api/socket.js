@@ -6,14 +6,14 @@ export default function handler(req, res) {
         res.socket.server.io = io;
 
         let players = {};
-        let currentTurn = "black";
+        let currentTurn = "Black";
         let currentTurnNum = 0;
 
         function syncCheck(reportedTurn){
             if(reportedTurn !== currentTurnNum){
                 io.emit("reset", "Desynced");
                 currentTurnNum = 0;
-                currentTurn = "black"
+                currentTurn = "Black"
                 console.log("Desynced")
             }
         }
@@ -21,12 +21,12 @@ export default function handler(req, res) {
         io.on("connection", (socket) => {
             ////On Connect
             console.log("a player connected")
-            if (!players.black) {
-                players.black = socket.id;
-                socket.emit("assignColor", "black");
-            } else if (!players.white) {
-                players.white = socket.id;
-                socket.emit("assignColor", "white");
+            if (!players.Black) {
+                players.Black = socket.id;
+                socket.emit("assignColor", "Black");
+            } else if (!players.White) {
+                players.White = socket.id;
+                socket.emit("assignColor", "White");
             } else {
                 socket.emit("spectator"); // More than 2 players become spectators
             }
@@ -34,7 +34,7 @@ export default function handler(req, res) {
             //On emit
             socket.on("move", ({ row, col, player }) => {
                 if (players[player] === socket.id && player === currentTurn) {
-                    currentTurn = currentTurn === "black" ? "white" : "black";
+                    currentTurn = currentTurn === "Black" ? "White" : "Black";
                     io.emit("update", { row, col, player });
                     currentTurnNum++;
                 }
@@ -42,17 +42,16 @@ export default function handler(req, res) {
 
             socket.on("disconnect", () => {
                 console.log("a player disconnected")
-                if (players.black === socket.id) delete players.black;
-                if (players.white === socket.id) delete players.white;
+                if (players.Black === socket.id) delete players.Black;
+                if (players.White === socket.id) delete players.White;
             });
 
             socket.on("requestColor", ({ turnnum }) => {
-                console.log(`${currentTurn} `)
-                if (players.black == socket.id) {
-                    socket.emit("assignColor", "black");
+                if (players.Black == socket.id) {
+                    socket.emit("assignColor", "Black");
                     syncCheck(turnnum);
-                } else if (players.white == socket.id) {
-                    socket.emit("assignColor", "white");
+                } else if (players.White == socket.id) {
+                    socket.emit("assignColor", "White");
                     syncCheck(turnnum);
                 } else {
                     socket.emit("spectator");

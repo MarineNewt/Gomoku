@@ -6,9 +6,10 @@ const socket = io();
 export default function GameBoard() {
     let size = 15;
     let [board, setBoard] = useState(Array(size).fill(null).map(() => Array(size).fill(null)));
-    let [turn, setTurn] = useState("black");
+    let [turn, setTurn] = useState("Black");
     let [turnnum, incTurn] = useState(0);
     let [playerColor, setPlayerColor] = useState(null);
+    let [winner, setWinner] = useState(null);
     
     useEffect(() => {
       socket.on("assignColor", (color) => {
@@ -21,7 +22,7 @@ export default function GameBoard() {
 
       socket.on("reset", (message) => {
         setBoard(Array(size).fill(null).map(() => Array(size).fill(null)));
-        setTurn("black");
+        setTurn("Black");
         incTurn(0);
         console.log(message);
       });
@@ -31,13 +32,13 @@ export default function GameBoard() {
             let newBoard = prev.map(row => [...row]);
             newBoard[row][col] = player;
             if (checkWin(row, col, player, newBoard)) {
-              console.log(`${player} wins.`);
+              setWinner(player);
             }
             return newBoard;
         });
 
         //check win conditions
-        setTurn(player === "black" ? "white" : "black");
+        setTurn(player === "Black" ? "White" : "Black");
         incTurn(turnnum + 1);
       });
 
@@ -54,16 +55,6 @@ export default function GameBoard() {
       let count = 0;
       let r = row + rowDir;
       let c = col + colDir;
-
-      if(rowDir == 0 && colDir == 1){
-        console.log(sboard)
-        // console.log("hit")
-        // console.log(r >= 0)
-        // console.log(r < size)
-        // console.log(c >= 0)
-        // console.log(c < size)
-        // console.log(board)
-      }
 
       while (r >= 0 && r < size && c >= 0 && c < size && sboard[r][c] === player) {
           count++;
@@ -82,19 +73,20 @@ export default function GameBoard() {
       );
     };
     const handleMove = (row, col) => {
-        if (board[row][col] !== null || playerColor !== turn) return;
+        if (board[row][col] !== null || playerColor !== turn || winner) return;
         socket.emit("move", { row, col, player: playerColor });
     };
 
     return (
         <div style={{ textAlign: "center" }}><h2>{playerColor === "spectator" ? "Spectator" : `You are playing as ${playerColor}`}</h2>
+            {winner && <h1> {winner} Wins!</h1>}
             <div style={{ display: "grid", gridTemplateColumns: `repeat(${size}, 30px)`, gap: "2px" }}>
                 {board.map((row, rIdx) =>
                     row.map((cell, cIdx) => (
                         <div
                             key={`${rIdx}-${cIdx}`}
                             onClick={() => {handleMove(rIdx, cIdx);}}
-                            style={{ width: 30, height: 30, border: "1px solid black", backgroundColor: cell ? "gray" : "white" }}
+                            style={{ width: 30, height: 30, border: "1px solid Black", backgroundColor: cell ? (winner? (cell=="White" ? "white" : "black") : "gray") : "antiquewhite" }}
                         />
                     ))
                 )}
