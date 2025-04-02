@@ -78,7 +78,7 @@ export default function GameBoard() {
     };
 
     return (
-        <div style={{ textAlign: "center" }}><h2>{playerColor === "spectator" ? "Spectator" : `You are playing as ${playerColor}`}</h2>
+        <div style={{ textAlign: "center" }}><h2>{playerColor === "spectator" ? "Spectator" : `You are playing as ${playerColor}.`}</h2>
             {winner && <h1> {winner} Wins!</h1>}
             <div style={{ display: "grid", gridTemplateColumns: `repeat(${size}, 30px)`, gap: "2px" }}>
                 {board.map((row, rIdx) =>
