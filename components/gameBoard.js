@@ -10,6 +10,7 @@ export default function GameBoard() {
     let [turnnum, incTurn] = useState(0);
     let [playerColor, setPlayerColor] = useState(null);
     let [winner, setWinner] = useState(null);
+    let [lastBlock, setLastBlock] = useState(null);
     
     useEffect(() => {
       socket.on("assignColor", (color) => {
@@ -36,7 +37,7 @@ export default function GameBoard() {
             }
             return newBoard;
         });
-
+        setLastBlock([row, col]);
         //check win conditions
         setTurn(player === "Black" ? "White" : "Black");
         incTurn(turnnum + 1);
@@ -86,7 +87,7 @@ export default function GameBoard() {
                         <div
                             key={`${rIdx}-${cIdx}`}
                             onClick={() => {handleMove(rIdx, cIdx);}}
-                            style={{ width: 30, height: 30, border: "1px solid Black", backgroundColor: cell ? (winner? (cell=="White" ? "white" : "black") : "gray") : "antiquewhite" }}
+                            style={{ width: 30, height: 30, border: "1px solid Black", backgroundColor: cell ? (winner? (cell=="White" ? "white" : "black") : (rIdx == lastBlock[0]&&cIdx == lastBlock[1])? "blue" : "gray") : "antiquewhite" }}
                         />
                     ))
                 )}
