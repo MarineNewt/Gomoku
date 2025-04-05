@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import io from "socket.io-client";
+import styles from "../styles/Home.module.css"
 
 const socket = io();
 
@@ -81,13 +82,14 @@ export default function GameBoard() {
     return (
         <div style={{ textAlign: "center" }}><h2>{playerColor === "spectator" ? "Spectator" : `You are playing as ${playerColor}.`}</h2>
             {winner && <h1> {winner} Wins!</h1>}
-            <div style={{ display: "grid", gridTemplateColumns: `repeat(${size}, 30px)`, gap: "2px" }}>
+            <div className={styles.boardrow} style={{ }}>
                 {board.map((row, rIdx) =>
                     row.map((cell, cIdx) => (
                         <div
+                            className={styles.boardSquare}
                             key={`${rIdx}-${cIdx}`}
                             onClick={() => {handleMove(rIdx, cIdx);}}
-                            style={{ width: 30, height: 30, border: "1px solid Black", backgroundColor: cell ? (winner? (cell=="White" ? "white" : "black") : (rIdx == lastBlock[0]&&cIdx == lastBlock[1])? "blue" : "gray") : "antiquewhite" }}
+                            style={{backgroundColor: cell ? (winner? (cell=="White" ? "white" : "black") : (rIdx == lastBlock[0]&&cIdx == lastBlock[1])? "blue" : "gray") : "antiquewhite" }}
                         />
                     ))
                 )}
