@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import io from "socket.io-client";
 import styles from "../styles/Home.module.css"
 
-const socket = io();
+const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3000");
 
 export default function GameBoard() {
     let size = 15;
@@ -16,6 +16,7 @@ export default function GameBoard() {
     useEffect(() => {
       socket.on("assignColor", (color) => {
           setPlayerColor(color);
+          console.log("Assigned")
       });
 
       socket.on("spectator", () => {
@@ -47,6 +48,7 @@ export default function GameBoard() {
       // Reconfirm player status after 3 seconds
       setTimeout(() => {
         if (playerColor == null) {
+          console.log("request")
           socket.emit("requestColor", { turnnum });
         }
       }, 3000);
