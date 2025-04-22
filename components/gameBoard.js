@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import io from "socket.io-client";
 import styles from "../styles/Home.module.css"
 
-const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3000");
+const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL);
 
 export default function GameBoard() {
     let size = 15;
