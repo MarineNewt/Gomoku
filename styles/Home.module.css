@@ -14,6 +14,28 @@
   font-family: "Segoe UI";
 }
 
+.lobbyContainer{
+padding-top: 5%;
+}
+
+.lobbyTitle{
+  font-size: 2rem;
+  padding: 0px;
+  margin: 0px;
+  margin-bottom: 25px;
+  font-family: "Segoe UI";
+}
+
+.lobbyTile{
+  font-size: 1.5rem;
+  color: black;
+  background-color: white;
+  border: 2px solid black;
+  width: 30%;
+  padding: 10px;
+  font-family: "Segoe UI";
+}
+
 .gameboard{
   display: flex;
   flex-direction: column;
@@ -41,6 +63,14 @@
   }
   .gametitle{
     font-family:'Trebuchet MS';
+  }
+  .lobbyTitle{
+    font-family:'Trebuchet MS';
+  }
+  .lobbyTile{
+    font-family:'Trebuchet MS';
+    width: 50%;
+    padding: 15px;
   }
   .boardrow{
     display: grid;
