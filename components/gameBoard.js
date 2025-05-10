@@ -88,7 +88,7 @@ export default function GameBoard({socket}) {
                             className={styles.boardSquare}
                             key={`${rIdx}-${cIdx}`}
                             onClick={() => {handleMove(rIdx, cIdx);}}
-                            style={{backgroundColor: cell ? (winner? (cell=="White" ? "white" : "black") : (rIdx == lastBlock[0]&&cIdx == lastBlock[1])? "blue" : "gray") : "antiquewhite" }}
+                            style={{backgroundColor: cell ? (winner? (cell=="White" ? "white" : "black") : (rIdx == lastBlock[0]&&cIdx == lastBlock[1])? "blue" : "gray") : "rgb(226,210,182)" }}
                         />
                     ))
                 )}
