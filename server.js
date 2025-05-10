@@ -25,24 +25,33 @@ app.prepare().then(() => {
   });
 
   function syncCheck(reportedTurn){
+    console.log(`sync report: ${reportedTurn}`)
+    console.log(`sync server: ${currentTurnNum}`)
     if(reportedTurn !== currentTurnNum){
         io.emit("reset", "Desynced");
         currentTurnNum = 0;
         currentTurn = "Black"
         console.log("Desynced")
     }
+    if(players.Black && players.White){
+      console.log("LOADED")
+      io.emit("loaded", true);
+    }
   }
 
   io.on("connection", (socket) => {
     ////On Connect
     console.log(`A user connected: ${socket.id}`);
+    console.log(`turn: ${currentTurnNum}`);
     if (!players.Black) {
       console.log("Initiate BLACK")
       players.Black = socket.id;
+      syncCheck(0);
       socket.emit("assignColor", "Black");
     } else if (!players.White) {
       console.log("Initiate WHITE")
       players.White = socket.id;
+      syncCheck(0);
       socket.emit("assignColor", "White");
     } else {
       console.log("LAPSE SPEC")
@@ -72,10 +81,10 @@ app.prepare().then(() => {
     socket.on("disconnect", () => {
       if (players.Black === socket.id) {
         delete players.Black;
-        io.emit("playerLeft", "Black");
+        io.emit("loaded", false);
       } else if (players.White === socket.id) {
         delete players.White;
-        io.emit("playerLeft", "White");
+        io.emit("loaded", false);
       }
     });
   });

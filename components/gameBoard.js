@@ -1,23 +1,33 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "../styles/Home.module.css"
+import loadingicon from '/public/images/Moving blocks.gif'
 
 export default function GameBoard({socket}) {
     let size = 15;
     let [board, setBoard] = useState(Array(size).fill(null).map(() => Array(size).fill(null)));
     let [turn, setTurn] = useState("Black");
     let [turnnum, incTurn] = useState(0);
-    let [playerColor, setPlayerColor] = useState(null);
+    let [playerColor, setPlayerColor] = useState("");
+    let playerColorRef = useRef("");
     let [winner, setWinner] = useState(null);
     let [lastBlock, setLastBlock] = useState(null);
+    let [loading, setLoading] = useState(true);
     
     useEffect(() => {
+      playerColorRef.current = playerColor;
+
       socket.on("assignColor", (color) => {
           setPlayerColor(color);
           console.log("Assigned")
+          playerColorRef.current = playerColor;
       });
 
       socket.on("spectator", () => {
           setPlayerColor("spectator");
+      });
+
+      socket.on("loaded", (loaded) => {
+        setLoading(!loaded);
       });
 
       socket.on("reset", (message) => {
@@ -42,15 +52,16 @@ export default function GameBoard({socket}) {
         incTurn(turnnum + 1);
       });
 
-      // Reconfirm player status after 3 seconds
+      // Reconfirm player status after 2 seconds
       setTimeout(() => {
-        if (playerColor == null) {
+        console.log(playerColorRef.current)
+        if (playerColorRef.current === "") {
           console.log("request")
           socket.emit("requestColor", { turnnum });
         }
-      }, 3000);
+      }, 2000);
 
-    }, []);
+    }, [playerColor]);
 
     const countConsecutive = (row, col, rowDir, colDir, player, sboard) => {
       let count = 0;
@@ -81,6 +92,7 @@ export default function GameBoard({socket}) {
     return (
         <div style={{ textAlign: "center" }}><h2>{playerColor === "spectator" ? "Spectator" : `You are playing as ${playerColor}.`}</h2>
             {winner && <h1> {winner} Wins!</h1>}
+            {loading && <div className={styles.loading}><img className={styles.loadingicon} src={loadingicon.src} alt="Design"/><h3 className={styles.loadingtext}>Awaiting players...</h3></div>}
             <div className={styles.boardrow} style={{ }}>
                 {board.map((row, rIdx) =>
                     row.map((cell, cIdx) => (
