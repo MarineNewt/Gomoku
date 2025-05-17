@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import styles from "../styles/Home.module.css"
 import loadingicon from '/public/images/Moving blocks.gif'
+import turnicon from '/public/images/Goturn.png'
 
 export default function GameBoard({socket}) {
     let size = 15;
@@ -93,6 +94,7 @@ export default function GameBoard({socket}) {
         <div style={{ textAlign: "center" }}><h2>{playerColor === "spectator" ? "Spectator" : `You are playing as ${playerColor}.`}</h2>
             {winner && <h1> {winner} Wins!</h1>}
             {loading && <div className={styles.loading}><img className={styles.loadingicon} src={loadingicon.src} alt="Design"/><h3 className={styles.loadingtext}>Awaiting players...</h3></div>}
+            {!loading && !winner && (turn == playerColor) &&<div className={styles.turnContainer}><img className={styles.turnicon} src={turnicon.src} alt="Design"/></div>}
             <div className={styles.boardrow} style={{ }}>
                 {board.map((row, rIdx) =>
                     row.map((cell, cIdx) => (

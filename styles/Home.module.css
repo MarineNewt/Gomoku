@@ -55,6 +55,17 @@ padding-top: 5%;
   background-color: rgb(253, 253, 253);
 }
 
+.turnContainer{
+  width: 12vw;
+  position: absolute;
+  top: 95%;
+  left: 25%;
+  transform: translate(-50%, -50%);
+}
+.turnicon{
+  width: 50%;
+}
+
 .gameboard{
   display: flex;
   flex-direction: column;
@@ -94,6 +105,15 @@ padding-top: 5%;
   .loading{
     width: 30vw;
   }
+  .turnContainer{
+    width: 12vw;
+    top: 95dvh;
+    left: 8%;
+    transform: translate(-50%, -50%);
+  }
+  .turnicon{
+    width: 100%;
+  }
   .boardrow{
     display: grid;
     gap: 1px;
@@ -113,6 +133,10 @@ padding-top: 5%;
   }
   .loadingtext{
     padding-top: 2%;
+  }
+  .turnContainer{
+    top: 70%;
+    left: 28%;
   }
   .boardrow{
     gap: 3px;
